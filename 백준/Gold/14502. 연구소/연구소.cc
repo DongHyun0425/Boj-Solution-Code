@@ -1,14 +1,16 @@
 #include <iostream>
 #include <queue>
+#include <algorithm>
 using namespace std;
 
-const int mxN = 8, dx[4] = { 1, -1, 0, 0 }, dy[4] = { 0, 0, 1, -1 };
-int n, m, a[mxN][mxN];
-int tmp[mxN][mxN];
-int ans = 0;
-bool vis[mxN][mxN];
+int n, m = 0;
+int map[8][8];
+int tempmap[8][8];
+int result=0;
+int dx[4] = { -1,1,0,0 };
+int dy[4] = { 0,0,1,-1 };
 
-void copy(int tmp[mxN][mxN], int a[mxN][mxN]) {
+void copy(int tmp[8][8], int a[8][8]) {
 	for (int i = 0; i < n; i++) {
 		for (int j = 0; j < m; j++) {
 			tmp[i][j] = a[i][j];
@@ -16,31 +18,31 @@ void copy(int tmp[mxN][mxN], int a[mxN][mxN]) {
 	}
 }
 
-void bfs() {
-	int after[8][8];
-	copy(after, tmp);
-
-	queue<pair<int, int>> q;
+void SpreadVirus() {
+	//1. 일단 2인거 찾고 push하기 2. 2상하좌우 확인하고 0이면 2 바꾸고 push (while문으로 q 0일때까지) 3. 이거 다하면 count하고 max값이랑 비교해서 크면 집어넣기
+	int spreadmap[8][8];
+	queue < pair<int, int>> q;
+	copy(spreadmap, tempmap);
+	//1번
 	for (int i = 0; i < n; i++) {
 		for (int j = 0; j < m; j++) {
-			if (after[i][j] == 2) {
+			if (spreadmap[i][j] == 2) {
 				q.push({ i, j });
 			}
 		}
 	}
-
+	//2번
 	while (q.size()) {
 		int x = q.front().first;
 		int y = q.front().second;
 		q.pop();
 
-		for (int k = 0; k < 4; k++) {
-			int nx = x + dx[k];
-			int ny = y + dy[k];
-
-			if (nx < 0 || nx >= n || ny < 0 || ny >= m) continue;
-			if (after[nx][ny] == 0) {
-				after[nx][ny] = 2;
+		for (int i = 0; i < 4; i++) {
+			int nx = x + dx[i];
+			int ny = y + dy[i];
+			if (nx<0 || nx>=n || ny<0 || ny>=m) { continue; }
+			if (spreadmap[nx][ny] == 0) {
+				spreadmap[nx][ny] = 2;
 				q.push({ nx, ny });
 			}
 		}
@@ -49,29 +51,31 @@ void bfs() {
 	int cnt = 0;
 	for (int i = 0; i < n; i++) {
 		for (int j = 0; j < m; j++) {
-			if (after[i][j] == 0) {
+			if (spreadmap[i][j] == 0) {
 				cnt++;
 			}
 		}
 	}
-	ans = max(ans, cnt);
+
+	result = max(result, cnt);
 }
 
-void wall(int cur) {
-	if (cur == 3) {
-		bfs();
+void wall(int cnt) {
+	if (cnt == 3) {
+		SpreadVirus();
 		return;
 	}
 
 	for (int i = 0; i < n; i++) {
 		for (int j = 0; j < m; j++) {
-			if (tmp[i][j] == 0) {
-				tmp[i][j] = 1;
-				wall(cur + 1);
-				tmp[i][j] = 0;
+			if (tempmap[i][j] == 0) {
+				tempmap[i][j] = 1;
+				wall(cnt+1);
+				tempmap[i][j] = 0;//SpreadVirsu에서 bfs랑 count까지 전부다하고 나머지 0으로 바꿔줘야함
 			}
 		}
 	}
+
 }
 
 int main() {
@@ -80,23 +84,25 @@ int main() {
 	cout.tie(0);
 
 	cin >> n >> m;
-	for (int i = 0; i < n; i++) {
-		for (int j = 0; j < m; j++) {
-			cin >> a[i][j];
-		}
-	}
 
 	for (int i = 0; i < n; i++) {
 		for (int j = 0; j < m; j++) {
-			if (a[i][j] == 0) {
-				//memset(vis, 0, sizeof(vis));
-				copy(tmp, a);
-				tmp[i][j] = 1;
+			int t = 0;
+			cin >> t;
+			map[i][j] = t;
+		}
+	}
+
+	//3개 무작위 골라서 벽세우기 함수 만약 하나 벽세우면 wall함수를 이용해서 나머지 2개 벽 다시 세워주기
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < m; j++) {
+			if (map[i][j] == 0) {
+				copy(tempmap,map);
+				tempmap[i][j] = 1;
 				wall(1);
-				tmp[i][j] = 0;
+				tempmap[i][j] = 0; //맨처음 1넣어준거 0으로 바꿔준느거임 wall함수에서 나머지 2개 1박아둔거 안에서 0으로 다시 되돌려줘야함
 			}
 		}
 	}
-
-	cout << ans;
+	cout << result;
 }
