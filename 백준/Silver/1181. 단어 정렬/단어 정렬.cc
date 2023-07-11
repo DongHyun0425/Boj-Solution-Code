@@ -5,12 +5,14 @@
 using namespace std;
 
 bool cmp(string a, string b) {
-	if (a.length() == b.length()) {
-		return a < b; //그냥 그대로 a<b로 해서 b가 더 크게 오름차순으로 정렬
+	if (a.length() < b.length()) {
+		return true;
 	}
-	else {
-		return a.length() < b.length();//만약 길이가 다르면 b의 길이가 더 길어야만 오름차순으로 정렬
+	else if(a.length() == b.length()) {
+		return a<b;
 	}
+	else { return false; }
+
 }
 
 int main() {
