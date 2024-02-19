@@ -1,7 +1,7 @@
 -- 코드를 입력하세요
-SELECT user_id, nickname, sum(price) total_sales
-from used_goods_user user left join used_goods_board board on user.user_id = board.writer_id
-where status = "DONE"
+SELECT USER_ID,NICKNAME,sum(price) TOTAL_SALES
+from used_goods_board b join used_goods_user u on b.writer_id=u.user_id
+where STATUS="DONE"
 group by user_id
-having total_sales >=700000
+having sum(price)>=700000
 order by total_sales
