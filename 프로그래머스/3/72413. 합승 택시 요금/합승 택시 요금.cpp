@@ -13,7 +13,7 @@ int solution(int n, int S, int A, int B, vector<vector<int>> fares) {
         for(int j=0;j<201;j++){
             if(i==j){graph[i][j]=0;}
             else{
-            graph[i][j]=8*1e10;
+            graph[i][j]=4*1e7;
             }
         }
     }
