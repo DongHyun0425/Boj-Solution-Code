@@ -1,0 +1,283 @@
+#include<iostream>
+
+using namespace std;
+
+bool livesanta[31] = {  };
+int ldx[8] = { 0,1,1,1,0,-1,-1,-1 };
+int ldy[8] = { 1,1,0,-1,-1,-1,0,1 };
+int ludolr = 0;
+int ludolc = 0;
+pair<int, int> santa[31];
+int santadx[4] = { -1,0,1,0 };
+int santady[4] = { 0,1,0,-1 };
+int scoresanta[31] = { 0, };
+bool stunodd[31] = { false, };
+bool stuneven[31] = { false, };
+int N, M, P, C, D;
+bool map[51][51] = { false, };
+
+void changeeven() {
+	for (int i = 1; i <= P; i++) {
+		stuneven[i] = false;
+	}
+}
+
+void changeodd() {
+	for (int i = 1; i <= P; i++) {
+		stunodd[i] = false;
+	}
+}
+
+int checklivesanta() {
+	int max = 30000;
+	int santanumber = 0;
+	int santar = 0;
+	int santac = 0;
+	for (int i = 1; i <= P; i++) {
+		if (livesanta[i]) {
+			int dist = (ludolr - santa[i].first) * (ludolr - santa[i].first) + (ludolc - santa[i].second) * (ludolc - santa[i].second);
+			if (dist < max) {
+				max = dist;
+				santanumber = i;
+				santar = santa[i].first;
+				santac = santa[i].second;
+			}
+			else if (dist == max) {
+				if (santa[i].first > santar) {
+					max = dist;
+					santanumber = i;
+					santar = santa[i].first;
+					santac = santa[i].second;
+				}
+				else if (santa[i].first == santar && santa[i].second > santac) {
+					max = dist;
+					santanumber = i;
+					santar = santa[i].first;
+					santac = santa[i].second;
+				}
+			}
+		}
+	}
+	return santanumber;
+}
+
+int comparedistwithsanta(int santaid) {
+	int min = 30000;
+	int tmp = 0;
+	for (int i = 0; i < 8; i++) {
+		int nx = ludolr + ldx[i];
+		int ny = ludolc + ldy[i];
+		int dist = (nx - santa[santaid].first) * (nx - santa[santaid].first) + (ny - santa[santaid].second) * (ny - santa[santaid].second);
+		if (dist < min) {
+			min = dist;
+			tmp = i;
+		}
+	}
+	return tmp;
+}
+
+void casacade(int nx, int ny, int tmp, int santaid) {
+	int id = 0;
+	for (int i = 1; i <= P; i++) {
+		if (nx == santa[i].first && ny == santa[i].second) {
+			id = i;
+		}
+	}
+	if (nx >= 1 && nx <= N && ny >= 1 && ny <= N && map[nx][ny]) {
+		casacade(nx+ldx[tmp], ny+ldy[tmp], tmp, id);
+	}
+	if (nx>=1 && nx<=N && ny>=1 && ny<=N) {
+		map[nx][ny] = true;
+		santa[santaid] = { nx,ny };
+	}else {
+		santa[santaid].first = 0;
+		santa[santaid].second = 0;
+		livesanta[santaid] = false;
+		stuneven[santaid] = false;
+		stunodd[santaid] = false;
+	}
+
+}
+
+void crushsanta(int tmp) {
+	if (map[ludolr][ludolc]) {
+		for (int i = 1; i <= P; i++) {
+			if (ludolr == santa[i].first && ludolc == santa[i].second) {
+				scoresanta[i] += C;
+				int newsantar = santa[i].first;
+				int newsantac = santa[i].second;
+				map[newsantar][newsantac] = false;
+				for (int i = 0; i < C; i++) {
+					newsantar += ldx[tmp];
+					newsantac += ldy[tmp];
+				}
+
+				if (newsantar>=1&&newsantar <= N && newsantac >= 1 && newsantac <= N) {
+					casacade(newsantar, newsantac, tmp, i);
+					if (M % 2 == 0) {
+						stuneven[i] = true;
+					}
+					else {
+						stunodd[i] = true;
+					}
+				}
+				else {
+					santa[i].first = 0;
+					santa[i].second = 0;
+					livesanta[i] = false;
+					stuneven[i] = false;
+					stunodd[i] = false;
+				}
+			}
+		}
+	}
+}
+
+void cascades(int nx, int ny, int j, int santaid) {
+	int id = 0;
+	for (int i = 1; i <= P; i++) {
+		if (nx == santa[i].first && ny == santa[i].second) {
+			id = i;
+		}
+	}
+	if (nx >= 1 && nx <= N && ny >= 1 && ny <= N && map[nx][ny]) {
+		cascades(nx + santadx[j], ny + santady[j], j, id);
+	}
+	if (nx>=1 && nx<=N && ny>=1 && ny<=N) {
+		map[nx][ny] = true;
+		santa[santaid] = { nx,ny };
+	}
+	else {
+		santa[santaid].first = 0;
+		santa[santaid].second = 0;
+		livesanta[santaid] = false;
+		stuneven[santaid] = false;
+		stunodd[santaid] = false;
+	}
+}
+
+void crushludol(int nx,int ny,int j, int santaid) {
+	int direction=(j + 2) % 4;
+	for (int i = 0; i < D; i++) {
+		nx += santadx[direction];
+		ny += santady[direction];
+	}
+
+	if (nx<1 || ny<1 || nx>N || ny>N) {
+		santa[santaid].first = 0;
+		santa[santaid].second = 0;
+		livesanta[santaid] = false;
+		stuneven[santaid] = false;
+		stunodd[santaid] = false;
+	}
+	else {
+		cascades(nx, ny, direction, santaid);
+		if (M % 2 == 0) {
+			stuneven[santaid] = true;
+		}
+		else {
+			stunodd[santaid] = true;
+		}
+	}
+}
+
+void movesanta() {
+	for (int i = 1; i <= P; i++) {
+		if (livesanta[i] && !stuneven[i] && !stunodd[i]) {
+			int dist = (ludolr - santa[i].first) * (ludolr - santa[i].first) + (ludolc - santa[i].second) * (ludolc - santa[i].second);
+			int min = 3000;
+			int tt = -1;
+			int nnx = 0;
+			int nny = 0;
+			for (int j = 0; j < 4; j++) {
+				int nx = santa[i].first + santadx[j];
+				int ny = santa[i].second + santady[j];
+				if (nx<1 || ny<1 || nx>N || ny>N) { continue; }
+				if (!map[nx][ny]) {
+					int movedist = (ludolr - nx) * (ludolr - nx) + (ludolc - ny) * (ludolc - ny);
+					if (movedist < dist && movedist < min) {
+						min = movedist;
+						tt = j;
+						nnx = nx;
+						nny = ny;
+					}
+				}
+			}
+			if (tt != -1) {
+				map[santa[i].first][santa[i].second] = false;
+				if (nnx == ludolr && nny == ludolc) {
+					scoresanta[i] += D;
+					crushludol(nnx, nny, tt, i);
+				}
+				else {
+					santa[i] = { nnx,nny };
+					map[nnx][nny] = true;
+				}
+			}
+		}
+	}
+}
+
+void afterturn() {
+	for (int i = 1; i <= P; i++) {
+		if (livesanta[i]) {
+			scoresanta[i]++;
+		}
+	}
+}
+
+int checksanta() {
+	int check = 0;
+	for (int i = 1; i <= P; i++) {
+		if (stuneven[i]==false && stunodd[i]==false && !livesanta[i]) {
+			check++;
+		}
+	}
+	if (check == P) {
+		return 1;
+	}
+	else {
+		return 0;
+	}
+}
+
+int main() {
+	cin >> N >> M >> P >> C >> D;
+	cin >> ludolr;
+	cin >> ludolc;
+	
+	for (int i = 1; i <= P; i++) {
+		int num = 0;
+		int r, c = 0;
+		cin >> num >> r >> c;
+		santa[num] = { r,c };
+		map[r][c] = true;
+		livesanta[i] = true;
+	}
+
+	while (M > 0) {
+		if (M % 2 == 0) {
+			changeeven();
+		}
+		else {
+			changeodd();
+		}
+
+		int nearsanta = checklivesanta();
+		int tmp = comparedistwithsanta(nearsanta);
+		ludolr += ldx[tmp];
+		ludolc += ldy[tmp];
+		crushsanta(tmp);
+		movesanta();
+		afterturn();
+		M--;
+		int b = checksanta();
+		if (b == 1) {
+			break;
+		}
+	}
+	for (int i = 1; i <= P; i++) {
+		cout << scoresanta[i] << " ";
+	}
+	return 0;
+}
