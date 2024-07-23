@@ -2,49 +2,51 @@
 #include <vector>
 #include <algorithm>
 #include <iostream>
-#include <map>
-
+#include <set>
 using namespace std;
+
+set<string>st;
+
+
+bool mycheck(string target,string ban){
+    if(target.size()!=ban.size()) return false;
+    for(int i=0;i<target.size();i++){
+            if(ban[i]=='*'){
+                continue;
+            }else if(ban[i]!=target[i]){
+                return false;
+            }
+    }
+    return true;
+}
 
 int solution(vector<string> user_id, vector<string> banned_id) {
     int answer = 0;
-    vector<int>v;
-    for(int i=0;i<user_id.size();i++){
-        v.push_back(i);
-    }
-    vector<string> t;
-    int y=0;
-    map<int, vector<int>> map;
+    sort(user_id.begin(),user_id.end());
     do{
-        vector<int>yy;
-        int k=0;
-        bool check[9]={false,};
-        for(int i=0;i<v.size();i++){
-            for(int j=0;j<banned_id.size();j++){
-                if(!check[j] && user_id[v[i]].size()==banned_id[j].size()){
-                    int x=0;
-                    for(int a=0;a<banned_id[j].size();a++){
-                        if(banned_id[j][a]=='*'){
-                            x++;
-                        }else if(banned_id[j][a]==user_id[v[i]][a]){
-                            x++;
-                        }
-                    }
-                    if(x==user_id[v[i]].size()){
-                        check[j]=true;
-                        k++;
-                        yy.push_back(v[i]);
-                        yy.push_back(j);
-                        break;
-                    }
+        vector<string> banned_tmp;
+        banned_tmp = banned_id;
+        vector<string> myfind;
+        for(int i=0;i<user_id.size();i++){
+            string target = user_id[i];
+            for(int j=0;j<banned_tmp.size();j++){
+                if(mycheck(target,banned_tmp[j])){
+                    myfind.push_back(target);
+                    banned_tmp.erase(banned_tmp.begin()+j);
+                    j--;
+                    break;
                 }
             }
+          
         }
-        if(k==banned_id.size()){
-            map[y]=yy;
-            y++;
+        sort(myfind.begin(),myfind.end());
+        if(banned_tmp.size()==0){
+              string tmp="";
+        for(int i=0;i<myfind.size();i++){
+            tmp+=myfind[i];
         }
-    }while(next_permutation(v.begin(),v.end()));
-    
-    return map.size();
+            st.insert(tmp);
+        }
+    }while(next_permutation(user_id.begin(),user_id.end()));
+    return st.size();
 }
