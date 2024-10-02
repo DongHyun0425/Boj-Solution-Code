@@ -1,83 +1,82 @@
 #include <string>
 #include <vector>
-#include <bits/stdc++.h> 
+#include <algorithm>
+#include <iostream>
+
 using namespace std;
-
-void dfs(int N, int target, vector<int>& container, vector<vector<int>>& combinations, int index){
-    if(container.size() >= target){
-        combinations.push_back(container);
-        return; 
+int d_num=0;
+vector<int> d_idx;
+vector<int> temp;
+vector<vector<int>> combi;
+int maxWin =0;
+void findDiceCombi(int depth, int sum, vector<int>&A_D, vector<int>&combi,vector<vector<int>>&dice){
+    if(depth == combi.size()){
+        A_D.push_back(sum);
+        return;
     }
-
-    for(int i = index; i < N; i++){
-        container.push_back(i+1); 
-        dfs(N, target, container, combinations, i + 1); 
-        container.pop_back(); 
-    }
-}
-
-void findSum(vector<int>& v, vector<int>& tmp, int& currentSum, vector<vector<int>>& dice, int index){
-    if(index >= v.size()){
-        tmp.push_back(currentSum);
-        return; 
-    }
-
-    for(int i = 0; i < dice[v[index]-1].size(); i++){
-        currentSum += dice[v[index]-1][i];
-        findSum(v,tmp,currentSum,dice,index+1); 
-        currentSum -= dice[v[index]-1][i]; 
+    for(int i=0;i<dice[combi[depth]-1].size();i++){
+        sum+=dice[combi[depth]-1][i];
+        findDiceCombi(depth+1,sum,A_D,combi,dice);
+        sum-=dice[combi[depth]-1][i];
     }
 }
 
 vector<int> solution(vector<vector<int>> dice) {
-    vector<int> answer = {0,0}; 
-    vector<vector<int>> combinations; 
-    vector<int> container; 
-    int N = dice.size();
-    int target = dice.size() / 2; 
-    dfs(N,target,container,combinations, 0); 
-    int start = 0, end = combinations.size()-1; 
-    int curr_maxRate = 0; 
-
-    while(start < end){
-        int currentSum1 = 0, currentSum2 = 0; 
-        vector<int> tmp1, tmp2; 
-
-        findSum(combinations[start],tmp1,currentSum1,dice,0); 
-        findSum(combinations[end],tmp2,currentSum2,dice,0); 
-
-        sort(tmp1.begin(),tmp1.end());
-        sort(tmp2.begin(),tmp2.end()); 
-
-        int winRate1 = 0, winRate2 = 0; 
-        for(int n : tmp1){
-            int win = lower_bound(tmp2.begin(), tmp2.end(), n) - tmp2.begin(); 
-            if(win - 1 > 0) winRate1 += win; 
-        }
-        for(int n : tmp2){
-            int win = lower_bound(tmp1.begin(), tmp1.end(), n) - tmp1.begin(); 
-            if(win - 1 > 0) winRate2 += win; 
-        }
-
-
-
-        //여기서는 아마 서로 비교하는 계산 로직? 
-        if(winRate1 > winRate2){
-            if(winRate1 > curr_maxRate){
-                curr_maxRate = winRate1; 
-                answer = combinations[start];
-            }
-        } else if(winRate2 > winRate1){
-            if(winRate2 > curr_maxRate){
-                curr_maxRate = winRate2; 
-                answer = combinations[end];
-            }
-        }
-
-        tmp1.clear();
-        tmp2.clear(); 
-        start++;
-        end--; 
+    vector<int> answer;
+    d_num = dice.size();
+    for(int i=0;i<d_num;i++){
+        d_idx.push_back(i+1);
     }
+    for(int i=0;i<d_num/2;i++){
+        temp.push_back(1);
+    }
+    for(int i=0;i<d_num/2;i++){
+        temp.push_back(0);
+    }
+    
+    do{
+        vector<int>tmp;
+        for(int i=0;i<d_num;i++){
+            if(temp[i]==1) tmp.push_back(d_idx[i]);
+        }
+        combi.push_back(tmp);
+    }while(prev_permutation(temp.begin(),temp.end()));
+    
+    int start = 0;
+    int end = combi.size()-1;
+    
+    while(start<end){
+        vector<int>A_D;
+        vector<int>B_D;
+        findDiceCombi(0,0,A_D,combi[start],dice);
+        findDiceCombi(0,0,B_D,combi[end],dice);
+        
+        sort(A_D.begin(),A_D.end());
+        sort(B_D.begin(),B_D.end());
+        
+        int win1 =0;
+        int win2 =0;
+        for(auto n : A_D){
+            int win = lower_bound(B_D.begin(),B_D.end(),n) - B_D.begin();
+            if(win>=0) win1+=win;
+        }
+        
+        for(auto n : B_D){
+            int win = lower_bound(A_D.begin(),A_D.end(),n) - A_D.begin();
+            if(win>=0) win2+=win;
+        }
+        
+        if(win1>win2&& win1>maxWin){
+            answer = combi[start];
+            maxWin = win1;
+        }else if(win2 > win1 && win2 > maxWin){
+            answer = combi[end];
+            maxWin = win2;
+        }
+        
+        start++;
+        end--;
+    }
+
     return answer;
 }
