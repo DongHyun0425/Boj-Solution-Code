@@ -1,7 +1,5 @@
 -- 코드를 입력하세요
-SELECT pt_name,pt_no,gend_cd,age,(
-    case when tlno is null then 'NONE' else TLNO end
-)TLNO
-from patient
-where gend_cd="W" and age<=12
-order by age desc, pt_name
+SELECT PT_NAME,PT_NO,GEND_CD,AGE,ifnull(TLNO,"NONE") as TLNO
+from PATIENT 
+where AGE <=12 and GEND_CD like "W"
+order by AGE desc, PT_NAME
