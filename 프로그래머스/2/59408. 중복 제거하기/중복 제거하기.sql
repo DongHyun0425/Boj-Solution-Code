@@ -1,4 +1,3 @@
 -- 코드를 입력하세요
-SELECT count(distinct(name)) count
-from animal_ins
-where name is not null
+SELECT count(Distinct(NAME) )
+from ANIMAL_INS 
