@@ -188,7 +188,7 @@ void archor_pos(int pos,int cnt) {
 		if (!Select[i]) {
 			Select[i] = true;
 			Pos.push_back(i);
-			archor_pos(pos, cnt + 1);
+			archor_pos(pos + 1, cnt + 1);
 			Select[i] = false;
 			Pos.pop_back();
 		}
