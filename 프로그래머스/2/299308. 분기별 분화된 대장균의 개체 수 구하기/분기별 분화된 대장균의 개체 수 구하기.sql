@@ -1,0 +1,21 @@
+-- 코드를 작성해주세요
+# 1분기 1,2,3, 2분기 4,5,6 3분기 7,8,9 4분기 10,11,12
+
+select A.QUARTER ,count(*) as ECOLI_COUNT
+from (select 
+case when MONTH(DIFFERENTIATION_DATE) = 1 then '1Q'
+when MONTH(DIFFERENTIATION_DATE) = 2 then '1Q'
+when MONTH(DIFFERENTIATION_DATE) = 3 then '1Q'
+when MONTH(DIFFERENTIATION_DATE) = 4 then '2Q'
+when MONTH(DIFFERENTIATION_DATE) = 5 then '2Q'
+when MONTH(DIFFERENTIATION_DATE) = 6 then '2Q'
+when MONTH(DIFFERENTIATION_DATE) = 7 then '3Q'
+when MONTH(DIFFERENTIATION_DATE) = 8 then '3Q'
+when MONTH(DIFFERENTIATION_DATE) = 9 then '3Q'
+when MONTH(DIFFERENTIATION_DATE) = 10 then '4Q'
+when MONTH(DIFFERENTIATION_DATE) = 11 then '4Q'
+else '4Q'
+end 'QUARTER'
+from ECOLI_DATA 
+) as A
+group by A.QUARTER
