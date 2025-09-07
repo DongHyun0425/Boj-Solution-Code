@@ -1,81 +1,44 @@
-#include <string>
-#include <iostream>
-#include <vector>
-#include <queue>
 #include <algorithm>
+#include <string>
 #include <stack>
+#include <iostream>
+using namespace std;
 using namespace std;
 
-string s = "";
-string bomb = "";
-
-void init() {
-	cin >> s >> bomb;
-}
+string s, bomb;
 
 void solve() {
-	stack<pair<char,int>>stk;
-	for (int i = 0; i < s.size(); i++) {
-		char c = s[i];
+    stack<pair<char, int>> stk;
 
-		//step 1: stack이 비워져있는경우
-		if (stk.empty()) {
-			if (bomb[0] == c) {
-				stk.push({ c,1 });
-				if (bomb.size() == 1) stk.pop();
-			}
-			else {
-				stk.push({ c,0 });
-			}
-		}
-		else {
-			//step 2: stack에 뭐라도 있는경우
-			char t = stk.top().first;
-			int n = stk.top().second;
+    for (char c : s) {
+        int matched = 0;
+        if (!stk.empty() && bomb[stk.top().second] == c) {
+            matched = stk.top().second + 1; // 이전 매칭 길이 + 1
+        } else if (bomb[0] == c) {
+            matched = 1; // 새로운 매칭 시작
+        }
+        stk.push({c, matched});
 
-			//다음에 올 문자열이 맞는경우
-			if (bomb[n] == c) {
-				stk.push({ c,n + 1 });
-				//만약 이게 size가 동일한경우
-				if (n + 1 == bomb.size()) {
-					for (int i = 0; i < bomb.size(); i++) {
-						stk.pop();
-					}
-				}
-			}
-			else {
-				//다음에 올 문자열이 아닌 경우
-				if (bomb[0] == c) {
-					stk.push({ c,1 });
-				}
-				else {
-					stk.push({ c,0 });
-				}
-			}
-		}
-	}
+        if (matched == bomb.size()) {
+            // 폭발 문자열과 일치하면 pop
+            for (int i = 0; i < bomb.size(); i++) stk.pop();
+        }
+    }
 
-	
-	if (stk.empty()) {
-		cout << "FRULA";
-	}
-	else {
-		stack<char> temp;
-		while (!stk.empty()) {
-			temp.push(stk.top().first);
-			stk.pop();
-		}
-
-		string t = "";
-		while (!temp.empty()) {
-			t+=temp.top();
-			temp.pop();
-		}
-		cout << t;
-	}
+    if (stk.empty()) {
+        cout << "FRULA";
+    } else {
+        string result;
+        while (!stk.empty()) {
+            result += stk.top().first;
+            stk.pop();
+        }
+        reverse(result.begin(), result.end());
+        cout << result;
+    }
 }
 
 int main() {
-	init();
-	solve();
+    cin >> s >> bomb;
+    solve();
 }
