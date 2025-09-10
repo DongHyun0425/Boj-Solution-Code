@@ -1,0 +1,5 @@
+select K.ITEM_ID,K.ITEM_NAME,K.RARITY
+from ITEM_TREE as T join  ITEM_INFO as I on T.PARENT_ITEM_ID = I.ITEM_ID
+join ITEM_INFO as K on T.ITEM_ID = K.ITEM_ID
+where I.RARITY = "RARE"
+order by T.ITEM_ID desc
