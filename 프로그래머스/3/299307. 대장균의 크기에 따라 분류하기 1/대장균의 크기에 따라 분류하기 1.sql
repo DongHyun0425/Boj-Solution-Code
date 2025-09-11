@@ -1,27 +1,8 @@
 -- 코드를 작성해주세요
-select ID, "LOW"  as SIZE
-from ECOLI_DATA 
-where id in (
-    select id from ECOLI_DATA
-    where SIZE_OF_COLONY<=100
-)
-
-union all 
-
-select ID, "MEDIUM"  as SIZE
-from ECOLI_DATA 
-where id in (
-    select id from ECOLI_DATA
-    where SIZE_OF_COLONY<=1000 && SIZE_OF_COLONY>100
-)
-
-union all
-
-select ID, "HIGH" as SIZE
-from ECOLI_DATA 
-where id in (
-    select id from ECOLI_DATA
-    where SIZE_OF_COLONY>1000
-)
-
+select ID,
+    case when SIZE_OF_COLONY <= 100 then "LOW"
+    when SIZE_OF_COLONY > 100 and SIZE_OF_COLONY <= 1000 then "MEDIUM"
+    else "HIGH"
+    end as SIZE
+from ECOLI_DATA
 order by ID
