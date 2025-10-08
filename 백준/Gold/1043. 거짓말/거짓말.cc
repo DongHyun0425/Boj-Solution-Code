@@ -70,9 +70,6 @@ void solve() {
 			}
 		}
 	}
-    
-    //전부갱신
-    for(int i=1;i<=N;i++) find_parent(i);
 
 	//step 3: parent만큼 파티 순회해서 true 갱신
 	for (int i = 0; i < person.size(); i++) {
@@ -80,7 +77,7 @@ void solve() {
 		int p = parent[tnum];
 
 		for (int i = 1; i <= N; i++) {
-			if (parent[i] == p) true_lie[i] = true;
+			if (find_parent(parent[i]) == find_parent(p)) true_lie[i] = true;
 		}
 	}
 
