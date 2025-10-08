@@ -39,15 +39,10 @@ void merge(int a, int b) {
 	int x = find_parent(a);
 	int y = find_parent(b);
 
-	if (x < y) {
-		for (int i = 1; i <= N; i++) {
-			if (parent[i] == y) parent[i] = x;
-		}
-	}
-	else {
-		for (int i = 1; i <= N; i++) {
-			if (parent[i] == x) parent[i] = y;
-		}
+	if (x < y) { 
+		parent[y] = x;
+	}else{
+		parent[x] = y;
 	}
 }
 
@@ -75,6 +70,9 @@ void solve() {
 			}
 		}
 	}
+    
+    //전부갱신
+    for(int i=1;i<=N;i++) find_parent(i);
 
 	//step 3: parent만큼 파티 순회해서 true 갱신
 	for (int i = 0; i < person.size(); i++) {
